@@ -428,7 +428,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 815387e5ccf8a934d89ac435c1eaa8db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 0
+  type: 1
   remoteIPAddress: 192.168.68.146
   videoTexture: {fileID: 8400000, guid: 44be273d2fe27e24494e83ebfbcc6706, type: 2}
   _display: {fileID: 1210076400}

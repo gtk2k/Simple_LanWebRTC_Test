@@ -32,11 +32,14 @@ public class LocalWebRTC : MonoBehaviour
     {
         Debug.Log($"<LocalWebRTC> Start");
 
-        videoTexture = new RenderTexture(streamingSize.x, streamingSize.y, 0, RenderTextureFormat.BGRA32, 0);
-        player.renderMode = VideoRenderMode.RenderTexture;
-        player.targetTexture = videoTexture;
-        player.isLooping = true;
-        player.Play();
+        if (type == PeerType.Sender)
+        {
+            videoTexture = new RenderTexture(streamingSize.x, streamingSize.y, 0, RenderTextureFormat.BGRA32, 0);
+            player.renderMode = VideoRenderMode.RenderTexture;
+            player.targetTexture = videoTexture;
+            player.isLooping = true;
+            player.Play();
+        }
 
         signaler = type == PeerType.Receiver ? new ReceiverSignaler() : new SenderSignaler(remoteIPAddress);
         signaler.OnConnected += Signaler_OnConnected;

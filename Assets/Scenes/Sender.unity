@@ -335,6 +335,7 @@ MonoBehaviour:
   player: {fileID: 2140345895}
   display: {fileID: 0}
   streamingSize: {x: 1280, y: 720}
+  videoTexture: {fileID: 0}
 --- !u!4 &1332002892
 Transform:
   m_ObjectHideFlags: 0
@@ -394,9 +395,9 @@ VideoPlayer:
   m_EnabledAudioTracks: 
   m_DirectAudioMutes: 
   m_ControlledAudioTrackCount: 0
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_SkipOnDrop: 1
-  m_Looping: 1
+  m_Looping: 0
   m_WaitForFirstFrame: 1
   m_FrameReadyEventEnabled: 0
   m_VideoShaders: []

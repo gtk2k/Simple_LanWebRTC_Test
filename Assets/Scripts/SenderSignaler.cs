@@ -9,7 +9,7 @@ internal class SenderSignaler : SignalerBase
     public SenderSignaler(string ipAddress, int port = 8989) : base()
     {
         Debug.Log($"<SenderSignaler> constructor > ipAddress: {ipAddress}, port: {port}");
-
+        _ipAddress = ipAddress;
         _ws = new WebSocket($"ws://{ipAddress}:{port}");
         _ws.OnOpen += (s, e) => OnOpen(_ipAddress);
         _ws.OnMessage += (s, e) => OnMessage(_ipAddress, e.Data);

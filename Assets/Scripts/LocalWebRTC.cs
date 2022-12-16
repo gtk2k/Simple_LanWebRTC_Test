@@ -44,7 +44,14 @@ public class LocalWebRTC : MonoBehaviour
         signaler = type == PeerType.Receiver ? new ReceiverSignaler() : new SenderSignaler(remoteIPAddress);
         signaler.OnConnected += Signaler_OnConnected;
         signaler.OnDesc += Signaler_OnDesc;
+        signaler.OnCand += Signaler_OnCand;
         signaler.Start();
+    }
+
+    private void Signaler_OnCand(string ipAddress, RTCIceCandidate cand)
+    {
+        Debug.Log($"<LocalWebRTC> Signaler_OnCand > ipAddress: {ipAddress}, cand: {cand.Candidate}");
+        peer.AddIceCandidate(cand);
     }
 
     private void OnApplicationQuit()
@@ -78,6 +85,10 @@ public class LocalWebRTC : MonoBehaviour
         if (type == PeerType.Sender)
         {
             var videoTrack = new VideoStreamTrack(videoTexture);
+            peer.OnIceCandidate = cand =>
+            {
+                signaler.Send(remoteIPAddress, SignalingMessage.FromCand(cand));
+            };
             peer.AddTrack(videoTrack);
             StartCoroutine(CreateDesc(RTCSdpType.Offer));
         }

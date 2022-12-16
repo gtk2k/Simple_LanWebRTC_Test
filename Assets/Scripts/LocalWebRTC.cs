@@ -80,8 +80,10 @@ public class LocalWebRTC : MonoBehaviour
         {
             peer.OnTrack = e =>
             {
+                Debug.Log($"<LocalWebRTC> OnTrack");
                 if (e.Track is VideoStreamTrack videoTrack)
                 {
+                    Debug.Log($"<LocalWebRTC> OnTrack > VideoStreamTrack");
                     videoTrack.OnVideoReceived += tex =>
                     {
                         display.GetComponent<Renderer>().material.mainTexture = tex;

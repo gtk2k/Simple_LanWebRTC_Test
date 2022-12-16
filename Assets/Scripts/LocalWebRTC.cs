@@ -32,8 +32,6 @@ public class LocalWebRTC : MonoBehaviour
     {
         Debug.Log($"<LocalWebRTC> Start");
 
-        StartCoroutine(WebRTC.Update());
-
         if (type == PeerType.Sender)
         {
             videoTexture = new RenderTexture(streamingSize.x, streamingSize.y, 0, RenderTextureFormat.BGRA32, 0);
@@ -98,6 +96,7 @@ public class LocalWebRTC : MonoBehaviour
                 }
             };
         }
+        StartCoroutine(WebRTC.Update());
     }
 
     private IEnumerator CreateDesc(RTCSdpType sdpType)

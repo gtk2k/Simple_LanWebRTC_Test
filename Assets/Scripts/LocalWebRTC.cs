@@ -47,6 +47,11 @@ public class LocalWebRTC : MonoBehaviour
         signaler.Start();
     }
 
+    private void OnApplicationQuit()
+    {
+        signaler.Stop();
+    }
+
     private void Signaler_OnDesc(string ipAddress, RTCSessionDescription desc)
     {
         Debug.Log($"<LocalWebRTC> Signaler_OnDesc > ipAddress: {ipAddress}, desc: {desc.type}");

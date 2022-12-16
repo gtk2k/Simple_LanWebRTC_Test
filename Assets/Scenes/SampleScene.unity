@@ -331,8 +331,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 0
-  remoteIPAddress: 
-  videoTexture: {fileID: 0}
+  remoteIPAddress: 192.168.68.69
+  videoTexture: {fileID: 8400000, guid: 44be273d2fe27e24494e83ebfbcc6706, type: 2}
 --- !u!4 &1332002892
 Transform:
   m_ObjectHideFlags: 0
@@ -377,7 +377,7 @@ VideoPlayer:
   m_TargetCameraAlpha: 1
   m_TargetCamera3DLayout: 0
   m_TargetCamera: {fileID: 0}
-  m_TargetTexture: {fileID: 0}
+  m_TargetTexture: {fileID: 8400000, guid: 44be273d2fe27e24494e83ebfbcc6706, type: 2}
   m_TimeReference: 0
   m_TargetMaterialRenderer: {fileID: 0}
   m_TargetMaterialProperty: <noninit>

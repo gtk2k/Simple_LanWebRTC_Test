@@ -7,6 +7,7 @@ public class LocalWebRTC : MonoBehaviour
     [SerializeField] private PeerType type;
     [SerializeField] private string remoteIPAddress;
     [SerializeField] private RenderTexture videoTexture;
+    [SerializeField] private GameObject _display;
 
     private SignalerBase signaler;
     private RTCPeerConnection peer;
@@ -56,6 +57,23 @@ public class LocalWebRTC : MonoBehaviour
             var videoTrack = new VideoStreamTrack(videoTexture);
             peer.AddTrack(videoTrack);
             StartCoroutine(CreateDesc(RTCSdpType.Offer));
+        }
+        else
+        {
+            peer.OnTrack = e =>
+            {
+                if (e.Track is VideoStreamTrack videoTrack)
+                {
+                    videoTrack.OnVideoReceived += tex =>
+                    {
+                        _display.GetComponent<Renderer>().material.mainTexture = tex;
+                    };
+                }
+
+                if (e.Track is AudioStreamTrack audioTrack)
+                {
+                }
+            };
         }
     }
 

@@ -80,7 +80,7 @@ public class LocalWebRTC : MonoBehaviour
         if (streamingType == StreamingType.Screen)
         {
             ScreenCap();
-            if(dc != null)
+            if(dc != null && dc.ReadyState == RTCDataChannelState.Open)
             {
                 dc.Send(MemoryPackSerializer.Serialize(new Vector2(Screen.width, Screen.height)));
             }
@@ -130,6 +130,7 @@ public class LocalWebRTC : MonoBehaviour
             };
             peer.AddTrack(videoTrack);
             dc = peer.CreateDataChannel("test");
+            dcEventHandler();
             StartCoroutine(CreateDesc(RTCSdpType.Offer));
         }
         else
@@ -168,6 +169,7 @@ public class LocalWebRTC : MonoBehaviour
         dc.OnMessage = data =>
         {
             var screenSize = MemoryPackSerializer.Deserialize<Vector2>(data);
+            Debug.Log(screenSize);
             display.transform.localScale = new Vector2(display.transform.localScale.x, display.transform.localScale.x * screenSize.y / screenSize.x);
         };
     }

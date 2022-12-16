@@ -31,6 +31,7 @@ public class LocalWebRTC : MonoBehaviour
     private void Start()
     {
         Debug.Log($"<LocalWebRTC> Start");
+        StartCoroutine(WebRTC.Update());
 
         if (type == PeerType.Sender)
         {
@@ -112,7 +113,6 @@ public class LocalWebRTC : MonoBehaviour
                 }
             };
         }
-        StartCoroutine(WebRTC.Update());
     }
 
     private IEnumerator CreateDesc(RTCSdpType sdpType)

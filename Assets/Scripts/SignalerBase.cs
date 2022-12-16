@@ -20,7 +20,7 @@ internal class SignalerBase
         NullValueHandling = NullValueHandling.Ignore
     };
 
-    protected Dictionary<string, WebSocket> clients;
+    protected Dictionary<string, WebSocket> clients = new Dictionary<string, WebSocket>();
 
     protected SignalerBase()
     {

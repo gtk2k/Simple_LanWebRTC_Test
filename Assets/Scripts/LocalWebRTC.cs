@@ -1,3 +1,4 @@
+using MemoryPack;
 using System.Collections;
 using Unity.WebRTC;
 using UnityEngine;
@@ -7,14 +8,16 @@ public class LocalWebRTC : MonoBehaviour
 {
     [SerializeField] private PeerType type;
     [SerializeField] private string remoteIPAddress;
-    [SerializeField] private VideoPlayer player;
+    [SerializeField] private GameObject videoPlayerGO;
+    [SerializeField] private StreamingType streamingType;
     [SerializeField] private GameObject display;
     [SerializeField] private Vector2Int streamingSize;
 
     private SignalerBase signaler;
     private RTCPeerConnection peer;
+    private RTCDataChannel dc;
 
-    public RenderTexture videoTexture;
+    public RenderTexture streamingTexture, videoTexture;
 
     private enum DescSide
     {
@@ -28,6 +31,19 @@ public class LocalWebRTC : MonoBehaviour
         Receiver
     }
 
+    private enum StreamingType
+    {
+        Video,
+        Screen
+    }
+
+    private enum DataType
+    {
+        None = 0,
+        StreamingType = 1,
+        ScreenSize = 2
+    }
+
     private void Start()
     {
         Debug.Log($"<LocalWebRTC> Start");
@@ -35,11 +51,16 @@ public class LocalWebRTC : MonoBehaviour
 
         if (type == PeerType.Sender)
         {
-            videoTexture = new RenderTexture(streamingSize.x, streamingSize.y, 0, RenderTextureFormat.BGRA32, 0);
-            player.renderMode = VideoRenderMode.RenderTexture;
-            player.targetTexture = videoTexture;
-            player.isLooping = true;
-            player.Play();
+            streamingTexture = new RenderTexture(streamingSize.x, streamingSize.y, 0, RenderTextureFormat.BGRA32, 0);
+            if (streamingType == StreamingType.Screen)
+                videoTexture = new RenderTexture(streamingSize.x, streamingSize.y, 0, RenderTextureFormat.BGRA32, 0);
+            else
+                videoTexture = streamingTexture;
+            var videoPlayer = videoPlayerGO.GetComponent<VideoPlayer>();
+            videoPlayer.renderMode = VideoRenderMode.RenderTexture;
+            videoPlayerGO.GetComponent<Renderer>().material.mainTexture = videoPlayer.targetTexture = videoTexture;
+            videoPlayer.isLooping = true;
+            videoPlayer.Play();
         }
 
         signaler = type == PeerType.Receiver ? new ReceiverSignaler() : new SenderSignaler(remoteIPAddress);
@@ -47,6 +68,23 @@ public class LocalWebRTC : MonoBehaviour
         signaler.OnDesc += Signaler_OnDesc;
         signaler.OnCand += Signaler_OnCand;
         signaler.Start();
+    }
+
+    private void ScreenCap()
+    {
+        ScreenCapture.CaptureScreenshotIntoRenderTexture(streamingTexture);
+    }
+
+    private void Update()
+    {
+        if (streamingType == StreamingType.Screen)
+        {
+            ScreenCap();
+            if(dc != null)
+            {
+                dc.Send(MemoryPackSerializer.Serialize(new Vector2(Screen.width, Screen.height)));
+            }
+        }
     }
 
     private void Signaler_OnCand(string ipAddress, RTCIceCandidate cand)
@@ -85,12 +123,13 @@ public class LocalWebRTC : MonoBehaviour
         peer = new RTCPeerConnection();
         if (type == PeerType.Sender)
         {
-            var videoTrack = new VideoStreamTrack(videoTexture);
+            var videoTrack = new VideoStreamTrack(streamingTexture);
             peer.OnIceCandidate = cand =>
             {
                 signaler.Send(remoteIPAddress, SignalingMessage.FromCand(cand));
             };
             peer.AddTrack(videoTrack);
+            dc = peer.CreateDataChannel("test");
             StartCoroutine(CreateDesc(RTCSdpType.Offer));
         }
         else
@@ -112,7 +151,25 @@ public class LocalWebRTC : MonoBehaviour
                 {
                 }
             };
+            peer.OnDataChannel = dataChannel =>
+            {
+                dc = dataChannel;
+                dcEventHandler();
+            };
         }
+    }
+
+    private void dcEventHandler()
+    {
+        dc.OnOpen = () =>
+        {
+            Debug.Log($"<DataChannel> Open");
+        };
+        dc.OnMessage = data =>
+        {
+            var screenSize = MemoryPackSerializer.Deserialize<Vector2>(data);
+            display.transform.localScale = new Vector2(display.transform.localScale.x, display.transform.localScale.x * screenSize.y / screenSize.x);
+        };
     }
 
     private IEnumerator CreateDesc(RTCSdpType sdpType)
@@ -133,16 +190,16 @@ public class LocalWebRTC : MonoBehaviour
         Debug.Log($"<LocalWebRTC> SetDesc > side: {side},  desc: {desc.type}");
         var op = side == DescSide.Local ? peer.SetLocalDescription(ref desc) : peer.SetRemoteDescription(ref desc);
         yield return op;
-        if(op.IsError)
+        if (op.IsError)
         {
             Debug.LogError($"Set {side} {desc.type} Error: {op.Error.message}");
             yield break;
         }
-        if(side == DescSide.Local)
+        if (side == DescSide.Local)
         {
             signaler.Send(remoteIPAddress, SignalingMessage.FromDesc(desc));
         }
-        else if(desc.type == RTCSdpType.Offer)
+        else if (desc.type == RTCSdpType.Offer)
         {
             yield return StartCoroutine(CreateDesc(RTCSdpType.Answer));
         }

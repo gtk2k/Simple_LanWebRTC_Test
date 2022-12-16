@@ -1,16 +1,20 @@
 using System.Collections;
 using Unity.WebRTC;
 using UnityEngine;
+using UnityEngine.Video;
 
 public class LocalWebRTC : MonoBehaviour
 {
     [SerializeField] private PeerType type;
     [SerializeField] private string remoteIPAddress;
-    [SerializeField] private RenderTexture videoTexture;
-    [SerializeField] private GameObject _display;
+    [SerializeField] private VideoPlayer player;
+    [SerializeField] private GameObject display;
+    [SerializeField] private Vector2Int streamingSize;
 
     private SignalerBase signaler;
     private RTCPeerConnection peer;
+
+    public RenderTexture videoTexture;
 
     private enum DescSide
     {
@@ -27,6 +31,13 @@ public class LocalWebRTC : MonoBehaviour
     private void Start()
     {
         Debug.Log($"<LocalWebRTC> Start");
+
+        videoTexture = new RenderTexture(streamingSize.x, streamingSize.y, 0, RenderTextureFormat.BGRA32, 0);
+        player.renderMode = VideoRenderMode.RenderTexture;
+        player.targetTexture = videoTexture;
+        player.isLooping = true;
+        player.Play();
+
         signaler = type == PeerType.Receiver ? new ReceiverSignaler() : new SenderSignaler(remoteIPAddress);
         signaler.OnConnected += Signaler_OnConnected;
         signaler.OnDesc += Signaler_OnDesc;
@@ -70,7 +81,7 @@ public class LocalWebRTC : MonoBehaviour
                 {
                     videoTrack.OnVideoReceived += tex =>
                     {
-                        _display.GetComponent<Renderer>().material.mainTexture = tex;
+                        display.GetComponent<Renderer>().material.mainTexture = tex;
                     };
                 }
 

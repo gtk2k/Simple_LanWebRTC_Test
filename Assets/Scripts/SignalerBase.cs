@@ -85,7 +85,7 @@ internal class SignalerBase
 
     public void Send(string ipAddress, SignalingMessage msg)
     {
-        Debug.Log($"<SignalerBase> Send > ipAddress: {ipAddress}, err: {msg}");
+        Debug.Log($"<SignalerBase> Send > ipAddress: {ipAddress}, msg: {msg.type}");
 
         var sendData = JsonConvert.SerializeObject(msg, jsonSettings);
         clients[ipAddress].Send(sendData);

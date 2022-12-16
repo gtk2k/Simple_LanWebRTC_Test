@@ -332,7 +332,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 0
   remoteIPAddress: 192.168.68.69
-  videoTexture: {fileID: 8400000, guid: 44be273d2fe27e24494e83ebfbcc6706, type: 2}
+  player: {fileID: 2140345895}
+  display: {fileID: 0}
+  streamingSize: {x: 1280, y: 720}
 --- !u!4 &1332002892
 Transform:
   m_ObjectHideFlags: 0

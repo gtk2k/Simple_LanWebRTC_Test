@@ -88,6 +88,7 @@ public class LocalWebRTC : MonoBehaviour
                     Debug.Log($"<LocalWebRTC> OnTrack > VideoStreamTrack");
                     videoTrack.OnVideoReceived += tex =>
                     {
+                        Debug.Log($"<LocalWebRTC> OnTrack > OnVideoReceived");
                         display.GetComponent<Renderer>().material.mainTexture = tex;
                     };
                 }

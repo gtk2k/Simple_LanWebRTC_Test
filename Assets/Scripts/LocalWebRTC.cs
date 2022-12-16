@@ -26,6 +26,7 @@ public class LocalWebRTC : MonoBehaviour
 
     private void Start()
     {
+        Debug.Log($"<LocalWebRTC> Start");
         signaler = type == PeerType.Receiver ? new ReceiverSignaler() : new SenderSignaler(remoteIPAddress);
         signaler.OnConnected += Signaler_OnConnected;
         signaler.OnDesc += Signaler_OnDesc;
@@ -34,16 +35,18 @@ public class LocalWebRTC : MonoBehaviour
 
     private void Signaler_OnDesc(string ipAddress, RTCSessionDescription desc)
     {
-        if(peer == null)
+        Debug.Log($"<LocalWebRTC> Signaler_OnDesc > ipAddress: {ipAddress}, desc: {desc.type}");
+        if (peer == null)
         {
             CreatePeer();
         }
         StartCoroutine(SetDesc(DescSide.Remote, desc));
     }
 
-    private void Signaler_OnConnected(string obj)
+    private void Signaler_OnConnected(string ipAddress)
     {
-        if(type == PeerType.Sender)
+        Debug.Log($"<LocalWebRTC> Signaler_OnConnected > ipAddress: {ipAddress}");
+        if (type == PeerType.Sender)
         {
             CreatePeer();
         }
@@ -51,6 +54,7 @@ public class LocalWebRTC : MonoBehaviour
 
     private void CreatePeer()
     {
+        Debug.Log($"<LocalWebRTC> CreatePeer");
         peer = new RTCPeerConnection();
         if (type == PeerType.Sender)
         {
@@ -79,6 +83,7 @@ public class LocalWebRTC : MonoBehaviour
 
     private IEnumerator CreateDesc(RTCSdpType sdpType)
     {
+        Debug.Log($"<LocalWebRTC> CreateDesc > sdpType: {sdpType}");
         var op = sdpType == RTCSdpType.Offer ? peer.CreateOffer() : peer.CreateAnswer();
         yield return op;
         if (op.IsError)
@@ -91,6 +96,7 @@ public class LocalWebRTC : MonoBehaviour
 
     private IEnumerator SetDesc(DescSide side, RTCSessionDescription desc)
     {
+        Debug.Log($"<LocalWebRTC> SetDesc > side: {side},  desc: {desc.type}");
         var op = side == DescSide.Local ? peer.SetLocalDescription(ref desc) : peer.SetRemoteDescription(ref desc);
         yield return op;
         if(op.IsError)
